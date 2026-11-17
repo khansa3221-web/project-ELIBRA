@@ -1,0 +1,11 @@
+# Cadangan untuk hosting bersama yang document root-nya folder project (bukan /public).
+# Cara terbaik tetap mengarahkan document root ke folder "public" (lihat PANDUAN-DEPLOYMENT.md).
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Blokir file/folder sensitif
+    RewriteRule ^(\.env|\.git|composer\.(json|lock)|artisan|storage|vendor|database|app|bootstrap|config|routes|tests)(/|$) - [F,L,NC]
+    RewriteRule ^(\.env.*|.*\.(sqlite|log|bat))$ - [F,L,NC]
+    # Teruskan semua permintaan lain ke public/
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

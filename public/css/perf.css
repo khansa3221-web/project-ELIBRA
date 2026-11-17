@@ -1,0 +1,9 @@
+/* E-LIBRA — lapisan performa. Dimuat TERAKHIR. Tidak mengubah tampilan yang terlihat. */
+
+/* Tab tidak aktif: hentikan semua animasi tak berujung (hemat CPU/GPU & baterai).
+   Kelas .tab-hidden dipasang oleh js/motion-pref.js. */
+html.tab-hidden *, html.tab-hidden *::before, html.tab-hidden *::after { animation-play-state: paused !important; }
+
+/* Navbar lengket sudah 90-94% putih; blur di atasnya nyaris tak terlihat tetapi memaksa
+   browser menghitung ulang blur setiap frame saat scroll. */
+.nav { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }

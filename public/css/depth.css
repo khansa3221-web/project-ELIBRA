@@ -1,0 +1,276 @@
+/* =====================================================================
+   E-LIBRA — Lapisan KEDALAMAN (depth layer)
+   Tujuan: web tidak terasa flat. Menambah glass, bayangan berlapis,
+   elemen 3D, orb melayang, spotlight kursor, marquee, dan mesh gradient.
+   File ini HANYA MENAMBAH. Dimuat setelah animations.css.
+   Untuk mematikan semuanya, hapus <link> depth.css di layouts/*.blade.php
+   ===================================================================== */
+
+:root{
+  --glass-bg: rgba(255,255,255,.62);
+  --glass-brd: rgba(255,255,255,.85);
+  --sh-1: 0 1px 2px rgba(19,34,59,.05), 0 8px 18px -10px rgba(40,71,126,.28);
+  --sh-2: 0 2px 4px rgba(19,34,59,.05), 0 18px 34px -16px rgba(40,71,126,.38), 0 38px 64px -38px rgba(40,71,126,.34);
+  --sh-3: 0 3px 6px rgba(19,34,59,.06), 0 26px 46px -18px rgba(40,71,126,.42), 0 60px 90px -50px rgba(40,71,126,.45);
+}
+
+/* ---------- Latar halaman: mesh lembut, bukan putih rata ---------- */
+body{
+  background:
+    radial-gradient(900px 620px at 0% 0%, #F9F7F3 0%, transparent 62%),
+    radial-gradient(800px 600px at 100% 100%, #E7EDF0 0%, transparent 58%),
+    #F9F7F3;
+  background-attachment: fixed;
+}
+.site-page{ background:linear-gradient(180deg,#fff 0%,#FDFDFC 55%,#fff 100%); }
+
+/* titik-titik halus di seksi, memudar di tepi atas & bawah */
+.section, .kat-body{
+  background:
+    linear-gradient(180deg,#fff 0,rgba(255,255,255,0) 16%,rgba(255,255,255,0) 84%,#fff 100%),
+    radial-gradient(circle at 1px 1px, rgba(48,196,206,.11) 1px, transparent 1.6px) 0 0 / 24px 24px;
+}
+
+/* ---------- Navbar kaca ---------- */
+.nav{
+  background:rgba(255,255,255,.74);
+  -webkit-backdrop-filter:saturate(1.7) blur(14px);
+  backdrop-filter:saturate(1.7) blur(14px);
+}
+.nav.is-scrolled{ background:rgba(255,255,255,.88); }
+
+/* ---------- Tombol: gradasi bergerak + sorotan dalam ---------- */
+.btn-solid,.btn-primary-lg,.kat-search-btn{
+  background:linear-gradient(135deg,var(--pink-400) 0%,var(--pink-600) 42%,var(--pink-800) 100%);
+  background-size:170% 170%; background-position:0% 0%;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.4),
+    inset 0 -2px 0 rgba(29,51,90,.18),
+    0 14px 24px -10px rgba(39,156,164,.7);
+  transition:background-position .6s var(--ease-out), transform .28s var(--ease-out), box-shadow .28s var(--ease-out);
+}
+.btn-solid:hover,.btn-primary-lg:hover,.kat-search-btn:hover{ background-position:100% 100%; }
+
+/* =====================================================================
+   HERO — aurora, orb 3D, ornamen melayang, gelombang
+   ===================================================================== */
+.hero{
+  background:
+    radial-gradient(760px 420px at 88% 8%, #E7ECEF 0%, transparent 60%),
+    radial-gradient(620px 420px at 100% 95%, #DBE4E8 0%, transparent 55%),
+    radial-gradient(520px 360px at 0% 100%, #F9F7F3 0%, transparent 60%),
+    linear-gradient(180deg,#F9F7F3 0%,#fff 100%);
+  padding-bottom:120px;
+}
+
+.hero-decor{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+.hero-decor::after{ /* butiran halus (grain) agar gradasi tidak "plastik" */
+  content:""; position:absolute; inset:0; opacity:.5; mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .6 0 0 0 0 .2 0 0 0 0 .35 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+/* orb 3D: sorotan putih + bayangan dalam = terlihat seperti bola kaca */
+.orb{ position:absolute; border-radius:50%; will-change:translate;
+  background:
+    radial-gradient(circle at 30% 26%, rgba(255,255,255,.95) 0, rgba(255,255,255,0) 26%),
+    radial-gradient(circle at 36% 32%, var(--pink-300), var(--pink-600) 58%, var(--pink-800) 100%);
+  box-shadow: inset -9px -13px 22px rgba(29,51,90,.38), inset 6px 8px 14px rgba(255,255,255,.35), 0 30px 46px -20px rgba(39,156,164,.6);
+  animation:dp-orb 9s ease-in-out infinite; }
+.orb-1{ width:88px; height:88px; left:47%; top:64px; }
+.orb-2{ width:44px; height:44px; left:36%; bottom:78px; animation-delay:-3s; animation-duration:11s; }
+.orb-3{ width:30px; height:30px; right:5%; top:46%; animation-delay:-5s; animation-duration:7.5s;
+  background:radial-gradient(circle at 30% 26%, rgba(255,255,255,.95) 0, rgba(255,255,255,0) 26%),
+             radial-gradient(circle at 36% 32%, #F6D6A4, var(--gold) 62%, #B9772C 100%);
+  box-shadow: inset -6px -8px 14px rgba(120,70,10,.35), 0 20px 30px -14px rgba(231,165,89,.7); }
+@keyframes dp-orb{ 0%,100%{ transform:translateY(0) rotate(0); } 50%{ transform:translateY(-22px) rotate(8deg); } }
+
+.ring{ position:absolute; border-radius:50%; border:1.5px dashed rgba(48,196,206,.32); animation:dp-spin 48s linear infinite; }
+.ring-1{ width:520px; height:520px; right:-170px; top:-60px; }
+.ring-2{ width:300px; height:300px; left:-100px; bottom:-60px; animation-direction:reverse; animation-duration:64s; border-color:rgba(231,165,89,.4); }
+@keyframes dp-spin{ to{ transform:rotate(360deg); } }
+
+/* ikon buku/bookmark/bintang melayang */
+.deco{ position:absolute; will-change:translate; filter:drop-shadow(0 14px 14px rgba(40,71,126,.28)); animation:dp-float 7s ease-in-out infinite; }
+.deco-book{ width:62px; left:42%; bottom:96px; transform:rotate(-14deg); }
+.deco-mark{ width:34px; right:3%; top:96px; transform:rotate(12deg); animation-delay:-2.5s; animation-duration:8.5s; }
+.deco-book2{ width:46px; right:42%; top:20px; transform:rotate(18deg); animation-delay:-4s; }
+@keyframes dp-float{ 0%,100%{ margin-top:0; } 50%{ margin-top:-16px; } }
+
+.spark{ position:absolute; width:16px; height:16px; background:linear-gradient(150deg,#fff,var(--pink-300));
+  clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);
+  animation:dp-twinkle 3.2s ease-in-out infinite; }
+.spark.s1{ left:38%; top:46%; } .spark.s2{ right:12%; top:14%; width:22px; height:22px; animation-delay:-1.1s; }
+.spark.s3{ left:12%; bottom:26%; width:12px; height:12px; animation-delay:-2s; } .spark.s4{ right:30%; bottom:22%; animation-delay:-.5s; }
+@keyframes dp-twinkle{ 0%,100%{ opacity:.25; transform:scale(.6) rotate(0); } 50%{ opacity:1; transform:scale(1.15) rotate(45deg); } }
+
+/* statistik hero jadi pil kaca */
+.hero-stats{ gap:16px; }
+.hstat{ padding:13px 20px; border-radius:16px; background:var(--glass-bg); border:1px solid var(--glass-brd);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); box-shadow:var(--sh-1), inset 0 1px 0 #fff; }
+
+/* ---------- Mini katalog: kartu kaca 3D + chip melayang ---------- */
+.hero-visual{ position:relative; perspective:1200px; }
+.mini-catalog{
+  position:relative; background:linear-gradient(160deg,rgba(255,255,255,.92),rgba(249,247,243,.78));
+  border:1px solid var(--glass-brd); box-shadow:var(--sh-3), inset 0 1px 0 #fff;
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+.glass-chip{ position:absolute; z-index:4; display:flex; align-items:center; gap:10px; padding:10px 15px 10px 10px; border-radius:16px;
+  background:var(--glass-bg); border:1px solid var(--glass-brd); -webkit-backdrop-filter:blur(14px) saturate(1.5); backdrop-filter:blur(14px) saturate(1.5);
+  box-shadow:var(--sh-2), inset 0 1px 0 #fff; font-size:12px; font-weight:800; color:var(--ink); line-height:1.25; animation:dp-float 6.5s ease-in-out infinite; }
+.glass-chip small{ display:block; font-size:10px; font-weight:600; color:var(--ink-soft); }
+.glass-chip .gi{ width:32px; height:32px; border-radius:10px; display:grid; place-items:center; flex-shrink:0; }
+.chip-a{ left:-30px; top:-34px; } .chip-a .gi{ background:linear-gradient(150deg,#E8F8EF,#C6EAD6); color:var(--green); }
+.chip-b{ right:-26px; bottom:-20px; animation-delay:-3.2s; } .chip-b .gi{ background:linear-gradient(150deg,var(--pink-100),var(--pink-200)); color:var(--pink-700); }
+
+/* ---------- Sampul buku: terasa seperti buku sungguhan ---------- */
+.mini-cover, .kb-cover, .detail-cover{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.4),
+    inset -14px 0 22px -16px rgba(0,0,0,.28),
+    0 14px 20px -10px rgba(19,34,59,.45);
+}
+.mini-cover::before, .kb-cover::before, .detail-cover::before{
+  background:linear-gradient(90deg,rgba(0,0,0,.26),rgba(0,0,0,.05) 70%,rgba(255,255,255,.28) 78%,rgba(0,0,0,.06));
+}
+.mini-cover{ transform-origin:left center; transition:transform .45s var(--ease-out), box-shadow .3s ease; }
+.mini-cover::after{ content:""; position:absolute; right:-3px; top:3px; bottom:3px; width:4px; border-radius:0 3px 3px 0;
+  background:repeating-linear-gradient(180deg,#fff 0 1px,#E0E7EB 1px 2px); box-shadow:1px 0 2px rgba(0,0,0,.18); }
+.mini-grid > a:hover .mini-cover{ transform:perspective(500px) rotateY(-16deg); box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 14px 18px 22px -8px rgba(19,34,59,.5); }
+
+/* ---------- Kartu: bayangan berlapis, spotlight, garis tepi menyala ---------- */
+.feat-card,.kb-card,.stat-card,.panel,.mini-catalog,.step{ position:relative; }
+.feat-card{ background:linear-gradient(165deg,#fff 0%,var(--pink-50) 100%); box-shadow:var(--sh-1); }
+.feat-card:hover,.kb-card:hover,.stat-card:hover{ box-shadow:var(--sh-3); }
+.kb-card{ box-shadow:var(--sh-1); }
+.stat-card{ box-shadow:var(--sh-1); background:linear-gradient(165deg,#fff,#FDFDFC); }
+.panel{ box-shadow:var(--sh-1); }
+.feat-card .fi,.stat-card .si{ box-shadow:inset 0 1px 0 #fff, 0 10px 18px -8px rgba(39,156,164,.45); }
+
+.dp-spot::after{ content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:2;
+  background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%), rgba(77,204,213,.15), transparent 66%);
+  opacity:0; transition:opacity .3s ease; }
+.dp-spot::before{ /* tepi gradasi menyala mengikuti kursor */
+  content:""; position:absolute; inset:-1px; border-radius:inherit; padding:1.5px; pointer-events:none; z-index:3;
+  background:radial-gradient(200px circle at var(--mx,50%) var(--my,50%), var(--pink-500), rgba(77,204,213,0) 70%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); mask-composite:exclude;
+  opacity:0; transition:opacity .3s ease; }
+.dp-spot:hover::after,.dp-spot:hover::before{ opacity:1; }
+/* .mini-catalog / .step / .kb-card memakai ::before lain? tidak — aman. */
+
+/* miring 3D mengikuti kursor (diatur JS lewat --rx / --ry) */
+.dp-tilt{ transform-style:preserve-3d; }
+.dp-tilt.is-tilting{
+  transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--ty,-6px)) !important;
+  transition:transform .12s ease-out, box-shadow .35s ease, border-color .3s ease !important;
+}
+
+/* ---------- Penanda "marquee": judul buku berjalan ---------- */
+.marquee{ position:relative; overflow:hidden; padding:20px 0; margin:-6px 0 8px;
+  -webkit-mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent); mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent); }
+.marquee-track{ display:flex; gap:14px; width:max-content; animation:dp-marquee 38s linear infinite; }
+.marquee:hover .marquee-track{ animation-play-state:paused; }
+.marquee-item{ display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:100px; white-space:nowrap;
+  background:var(--glass-bg); border:1px solid var(--pink-150); box-shadow:var(--sh-1), inset 0 1px 0 #fff;
+  font-size:12.5px; font-weight:800; color:var(--ink); }
+.marquee-item i{ width:26px; height:26px; border-radius:8px; display:grid; place-items:center; color:#fff;
+  background:linear-gradient(150deg,var(--pink-400),var(--pink-700)); box-shadow:0 6px 10px -4px rgba(39,156,164,.6); }
+.marquee-item span{ color:var(--ink-soft); font-weight:600; }
+@keyframes dp-marquee{ to{ transform:translateX(-50%); } }
+
+/* ---------- Langkah-langkah: kartu kaca ---------- */
+.step-line{ top:52px; z-index:0; }
+.step .sn{ position:relative; z-index:2; }
+.steps-wrap{ background:
+  radial-gradient(500px 260px at 10% 0%, rgba(255,255,255,.9), transparent 65%),
+  linear-gradient(180deg,#F9F7F3,#F9F7F3); box-shadow:inset 0 1px 0 #fff, var(--sh-2); }
+.step{ padding:26px 18px 22px; border-radius:20px; background:var(--glass-bg); border:1px solid var(--glass-brd);
+  box-shadow:var(--sh-1), inset 0 1px 0 #fff; margin:0 8px; transition:transform .35s var(--ease-out), box-shadow .35s ease; }
+.step:hover{ transform:translateY(-8px); box-shadow:var(--sh-3), inset 0 1px 0 #fff; }
+.step .sn{ background:linear-gradient(150deg,#fff,var(--pink-100)); box-shadow:0 10px 18px -8px rgba(39,156,164,.5), inset 0 1px 0 #fff; }
+
+/* ---------- CTA: mesh gradient bergerak ---------- */
+.cta-band{
+  background:
+    radial-gradient(520px 280px at 12% 14%, rgba(255,255,255,.26), transparent 62%),
+    radial-gradient(460px 320px at 92% 112%, rgba(186,219,224,.55), transparent 62%),
+    radial-gradient(380px 260px at 60% -10%, rgba(255,214,150,.28), transparent 62%),
+    linear-gradient(135deg,var(--pink-500),var(--pink-800));
+  background-size:140% 140%, 140% 140%, 140% 140%, 100% 100%;
+  animation:dp-mesh 14s ease-in-out infinite alternate;
+  box-shadow:0 44px 80px -44px rgba(40,71,126,.8), inset 0 1px 0 rgba(255,255,255,.35);
+}
+@keyframes dp-mesh{ 0%{ background-position:0% 0%,100% 100%,50% 0%,0 0; } 100%{ background-position:100% 60%,0% 20%,20% 100%,0 0; } }
+
+/* =====================================================================
+   LOGIN / DAFTAR
+   ===================================================================== */
+.login-split{ min-height:100vh; }
+.login-left{ position:relative;
+  background:
+    radial-gradient(420px 360px at 0% 0%, #F9F7F3, transparent 65%),
+    radial-gradient(380px 320px at 100% 100%, #F9F7F3, transparent 65%), #fff; }
+.login-form-wrap{ position:relative; z-index:1; margin-top:28px; margin-bottom:28px; padding:34px 32px 30px; border-radius:26px; max-width:410px;
+  background:var(--glass-bg); border:1px solid var(--glass-brd); box-shadow:var(--sh-2), inset 0 1px 0 #fff;
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
+.login-right{
+  background:
+    radial-gradient(120% 90% at 18% 0%, rgba(255,255,255,.26), transparent 55%),
+    radial-gradient(70% 60% at 100% 100%, rgba(196,224,229,.5), transparent 60%),
+    linear-gradient(160deg,var(--pink-400),var(--pink-800)); }
+.lr-orbit{ position:absolute; right:-120px; top:50%; width:460px; height:460px; margin-top:-230px; border-radius:50%;
+  border:1.5px dashed rgba(255,255,255,.28); animation:dp-spin 50s linear infinite; pointer-events:none; }
+.lr-orbit::after{ content:""; position:absolute; inset:60px; border-radius:50%; border:1.5px dashed rgba(255,255,255,.18); }
+.lr-orbit i{ position:absolute; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 0 18px 4px rgba(255,255,255,.7); left:50%; top:-8px; }
+.lr-shelf{ position:absolute; right:48px; bottom:54px; z-index:1; display:flex; align-items:flex-end; gap:7px; transform:rotate(-4deg); }
+.lr-shelf b{ display:block; width:30px; border-radius:5px 5px 3px 3px; position:relative; box-shadow:inset -5px 0 8px rgba(0,0,0,.2), 0 14px 18px -8px rgba(14,26,45,.55);
+  animation:dp-rise 4.8s ease-in-out infinite; transform-origin:bottom; }
+.lr-shelf b::before{ content:""; position:absolute; left:6px; right:6px; top:14px; height:3px; border-radius:2px; background:rgba(255,255,255,.55); box-shadow:0 7px 0 rgba(255,255,255,.35); }
+.lr-shelf b:nth-child(1){ height:104px; background:linear-gradient(160deg,#fff,#DBE4E8); }
+.lr-shelf b:nth-child(2){ height:132px; background:linear-gradient(160deg,#F6D6A4,#E7A559); animation-delay:-.8s; }
+.lr-shelf b:nth-child(3){ height:92px;  background:linear-gradient(160deg,#C9B8F0,#7B5FC4); animation-delay:-1.6s; }
+.lr-shelf b:nth-child(4){ height:120px; background:linear-gradient(160deg,#BFE6D2,#3F9E6B); animation-delay:-2.4s; }
+.lr-shelf b:nth-child(5){ height:100px; background:linear-gradient(160deg,#DFE7EB,#30C4CE); animation-delay:-3.2s; }
+@keyframes dp-rise{ 0%,100%{ transform:translateY(0) scaleY(1); } 50%{ transform:translateY(-7px) scaleY(1.02); } }
+
+/* =====================================================================
+   DASHBOARD / PANEL
+   ===================================================================== */
+.app-side{ background:linear-gradient(180deg,#F9F7F3 0%,#F9F7F3 100%); box-shadow:inset -1px 0 0 rgba(255,255,255,.8), 8px 0 30px -24px rgba(40,71,126,.4); }
+.app-nav a.active{ background:linear-gradient(135deg,#fff,#F9F7F3); box-shadow:inset 0 1px 0 #fff, 0 12px 20px -10px rgba(39,156,164,.45); }
+.app-nav a.active .ic{ background:linear-gradient(150deg,var(--pink-500),var(--pink-700)); color:#fff; box-shadow:0 8px 14px -6px rgba(39,156,164,.7); }
+.app-main{ background:
+  radial-gradient(640px 360px at 100% 0%, rgba(232,237,240,.7), transparent 62%),
+  radial-gradient(520px 320px at 0% 100%, rgba(249,247,243,.8), transparent 62%), #FEFDFC; }
+.app-topbar h1{ background:linear-gradient(90deg,var(--ink),var(--pink-800)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.app-user{ background:linear-gradient(135deg,#fff,#F9F7F3); box-shadow:var(--sh-1), inset 0 1px 0 #fff; }
+
+/* ---------- Detail buku ---------- */
+.detail-cover{ box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset -18px 0 30px -20px rgba(0,0,0,.3), 0 40px 60px -22px rgba(19,34,59,.55), 0 80px 100px -60px rgba(40,71,126,.5); }
+.detail-cover::after{ content:""; position:absolute; right:-6px; top:6px; bottom:6px; width:8px; border-radius:0 6px 6px 0;
+  background:repeating-linear-gradient(180deg,#fff 0 1.5px,#E0E7EB 1.5px 3px); box-shadow:2px 0 4px rgba(0,0,0,.2); }
+
+/* ---------- Kursor bercahaya (dibuat JS, hanya di perangkat dengan mouse) ---------- */
+.dp-glow{ position:fixed; left:0; top:0; width:420px; height:420px; margin:-210px 0 0 -210px; border-radius:50%; pointer-events:none; z-index:1;
+  background:radial-gradient(circle,rgba(160,205,212,.22),transparent 65%); mix-blend-mode:multiply; opacity:0; transition:opacity .4s ease; will-change:transform; }
+.dp-glow.on{ opacity:1; }
+
+/* ---------- Responsif & hemat gerak ---------- */
+@media (max-width:980px){
+  .glass-chip,.deco-book2,.ring-1,.orb-1{ display:none; }
+  .hero{ padding-bottom:96px; }
+  .login-form-wrap{ padding:26px 22px; }
+  .lr-shelf,.lr-orbit{ display:none; }
+  .step{ margin:0; }
+}
+@media (max-width:720px){
+  .hero-decor .orb-3,.deco-book{ display:none; }
+  .marquee-item{ font-size:11.5px; }
+}
+@media (hover:none){
+  .dp-spot::before,.dp-spot::after{ display:none; }
+}
+@media (prefers-reduced-motion:reduce){
+  .orb,.deco,.ring,.spark,.glass-chip,.marquee-track,.cta-band,.lr-orbit,.lr-shelf b{ animation:none !important; }
+  .dp-glow{ display:none; }
+}
